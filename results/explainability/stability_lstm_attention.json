@@ -1,0 +1,55 @@
+{
+    "model": "LSTM+Attention",
+    "sigmas": [
+        0.01,
+        0.05,
+        0.1
+    ],
+    "attention_sample_size": 1000,
+    "clean_accuracy": 0.7651730257320319,
+    "clean_f1_macro": 0.5704912799331636,
+    "clean_f1_weighted": 0.7288362642301927,
+    "results": [
+        {
+            "sigma": 0.01,
+            "accuracy_noisy": 0.764552,
+            "f1_macro_noisy": 0.571459,
+            "f1_weighted_noisy": 0.729433,
+            "prediction_stability": 0.9811,
+            "prediction_change_rate": 0.0189,
+            "mean_clean_confidence": 0.974198,
+            "mean_noisy_confidence": 0.972931,
+            "confidence_drop": 0.001266,
+            "attention_cosine_similarity": 1.0
+        },
+        {
+            "sigma": 0.05,
+            "accuracy_noisy": 0.702928,
+            "f1_macro_noisy": 0.534817,
+            "f1_weighted_noisy": 0.675499,
+            "prediction_stability": 0.859406,
+            "prediction_change_rate": 0.140594,
+            "mean_clean_confidence": 0.974198,
+            "mean_noisy_confidence": 0.956671,
+            "confidence_drop": 0.017527,
+            "attention_cosine_similarity": 1.0
+        },
+        {
+            "sigma": 0.1,
+            "accuracy_noisy": 0.644587,
+            "f1_macro_noisy": 0.461153,
+            "f1_weighted_noisy": 0.6325,
+            "prediction_stability": 0.735581,
+            "prediction_change_rate": 0.264419,
+            "mean_clean_confidence": 0.974198,
+            "mean_noisy_confidence": 0.94702,
+            "confidence_drop": 0.027177,
+            "attention_cosine_similarity": 1.0
+        }
+    ],
+    "files": {
+        "csv": "results\\explainability\\stability_lstm_attention.csv",
+        "plot": "results\\visualizations\\explainability\\stability_analysis_lstm_attention.png"
+    },
+    "interpretation_note": "A robust IDS should keep predictions and explanations stable under small non-adversarial perturbations. Large drops indicate sensitivity that could become a security risk under adversarial manipulation."
+}

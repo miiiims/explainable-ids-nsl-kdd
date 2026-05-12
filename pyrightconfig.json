@@ -1,0 +1,10 @@
+{
+  "typeCheckingMode": "off",
+  "include": ["src"],
+  "exclude": ["**/node_modules", "**/__pycache__", "**/.*", "venv", "data", "models", "notebooks", "results"],
+  "reportMissingImports": false,
+  "reportMissingModuleSource": false,
+  "reportMissingTypeStubs": false,
+  "pythonVersion": "3.13",
+  "pythonPlatform": "Windows"
+}

@@ -1,0 +1,64 @@
+# Python virtual environment
+venv/
+venv_dml/
+venv_cuda/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+*.ipynb
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local backups / old files
+old/
+backups/
+backup.py
+
+# Generated data
+data/processed/
+data/splits/
+
+# Model weights / trained models
+models/
+results/models/
+*.h5
+*.keras
+
+# Generated experiment outputs
+results/**/*.npy
+results/**/*.pkl
+results/**/*.keras
+results/**/*.h5
+
+# Results and temporary files
+logs/
+*.log
+
+# IDE specific
+.vscode/extensions/
+
+# Environment variables
+.env
+.env.local
+*.key
+*.pem
+
+# Optional: ignore generated reports/plots if you want a clean repo
+# results/**/*.png
+# results/**/*.csv
+# results/**/*.json

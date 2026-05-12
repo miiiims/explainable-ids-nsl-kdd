@@ -1,0 +1,11 @@
+              precision    recall  f1-score   support
+
+         DoS       0.96      0.78      0.86      7458
+       Probe       0.76      0.61      0.68      2421
+         R2L       0.95      0.11      0.20      2887
+         U2R       0.37      0.33      0.35        67
+      normal       0.67      0.97      0.79      9711
+
+    accuracy                           0.76     22544
+   macro avg       0.74      0.56      0.58     22544
+weighted avg       0.81      0.76      0.73     22544
