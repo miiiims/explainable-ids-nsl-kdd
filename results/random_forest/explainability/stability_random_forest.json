@@ -1,0 +1,50 @@
+{
+    "model": "Random Forest",
+    "sigmas": [
+        0.01,
+        0.05,
+        0.1
+    ],
+    "clean_accuracy": 0.7471167494677076,
+    "clean_f1_macro": 0.48661453099144414,
+    "clean_f1_weighted": 0.6983476997560178,
+    "results": [
+        {
+            "sigma": 0.01,
+            "accuracy_noisy": 0.693843,
+            "f1_macro_noisy": 0.422397,
+            "f1_weighted_noisy": 0.643509,
+            "prediction_stability": 0.924769,
+            "prediction_change_rate": 0.075231,
+            "mean_clean_confidence": 0.926443,
+            "mean_noisy_confidence": 0.739414,
+            "confidence_drop": 0.187029
+        },
+        {
+            "sigma": 0.05,
+            "accuracy_noisy": 0.646425,
+            "f1_macro_noisy": 0.383523,
+            "f1_weighted_noisy": 0.592491,
+            "prediction_stability": 0.874512,
+            "prediction_change_rate": 0.125488,
+            "mean_clean_confidence": 0.926443,
+            "mean_noisy_confidence": 0.68388,
+            "confidence_drop": 0.242564
+        },
+        {
+            "sigma": 0.1,
+            "accuracy_noisy": 0.59945,
+            "f1_macro_noisy": 0.343159,
+            "f1_weighted_noisy": 0.537053,
+            "prediction_stability": 0.824388,
+            "prediction_change_rate": 0.175612,
+            "mean_clean_confidence": 0.926443,
+            "mean_noisy_confidence": 0.658311,
+            "confidence_drop": 0.268132
+        }
+    ],
+    "files": {
+        "csv": "results\\random_forest\\explainability\\stability_random_forest.csv",
+        "plot": "results\\random_forest\\visualizations\\explainability\\stability_analysis_random_forest.png"
+    }
+}

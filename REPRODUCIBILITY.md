@@ -90,3 +90,13 @@ Stability analysis:
 ```powershell
 .\venv_dml\Scripts\python.exe src\explainability\stability_mlp.py
 ```
+
+## Lightweight adversarial evasion analysis
+
+This white-box FGSM/PGD stress test is applied to the differentiable IDS models
+MLP, LSTM, and LSTM + Attention. It also reports a simple confidence-threshold
+abstention probe as a lightweight mitigation analysis.
+
+```powershell
+.\venv_dml\Scripts\python.exe src\explainability\adversarial_evasion_analysis.py
+```
