@@ -17,16 +17,39 @@ IDS_LSTM_Project/
 │       └── y_test.pkl
 ├── src/
 │   ├── data_engineering.py  # Data preprocessing & normalization
-│   ├── model.py             # LSTM model architecture
-│   ├── train.py             # Model training script
-│   ├── evaluate.py          # Model evaluation & comparison
-│   └── features.py          # Feature engineering utilities
-├── models/
-│   ├── baseline/            # Baseline models
-│   └── lstm/                # LSTM model checkpoints
+│   ├── preprocessing/       # Preprocessing and sequence creation
+│   │   └── feature_engineering.py
+│   ├── training/            # Training entrypoints for experiments
+│   │   ├── train_lstm_attention.py
+│   │   ├── train_lstm.py
+│   │   ├── train_mlp.py
+│   │   ├── train_random_forest.py
+│   │   └── train_hist_gradient_boosting.py
+│   ├── evaluation/          # Evaluation entrypoints for experiments
+│   │   ├── evaluate_lstm_attention.py
+│   │   ├── evaluate_lstm.py
+│   │   ├── evaluate_mlp.py
+│   │   ├── evaluate_random_forest.py
+│   │   └── evaluate_hist_gradient_boosting.py
+│   ├── explainability/      # Explainability scripts
+│   │   ├── attention_visualizer.py
+│   │   ├── shap_lstm_attention.py
+│   │   ├── shap_lstm.py
+│   │   ├── shap_mlp.py
+│   │   ├── shap_random_forest.py
+│   │   └── stability_lstm_attention.py
 ├── results/
-│   ├── visualizations/      # Performance charts
-│   └── model_comparison.csv # Evaluation metrics
+│   ├── lstm_attention/      # Mini-dossier LSTM + Attention
+│   │   ├── models/
+│   │   ├── metrics/
+│   │   ├── reports/
+│   │   ├── visualizations/
+│   │   │   └── explainability/
+│   │   └── explainability/
+│   ├── lstm/                # Mini-dossier LSTM sans attention
+│   ├── mlp/                 # Mini-dossier MLP
+│   ├── random_forest/       # Mini-dossier Random Forest
+│   └── hist_gradient_boosting/
 ├── notebooks/               # Jupyter notebooks
 ├── logs/                    # Training logs
 └── requirements.txt         # Dependencies
@@ -58,27 +81,94 @@ pip install -r requirements.txt
 
 ```bash
 # Step 1: Preprocess data
-python src/data_engineering.py
+python src/preprocessing/feature_engineering.py
 
-# Step 2: Train LSTM model
-python src/train.py
+# Step 2: Train the experiments
+python src/training/train_lstm_attention.py      # LSTM + Attention
+python src/training/train_lstm.py                # LSTM sans attention
+python src/training/train_random_forest.py       # Random Forest baseline
+python src/training/train_hist_gradient_boosting.py
+python src/training/train_mlp.py                 # MLP tabular baseline
 
-# Step 3: Evaluate and compare models
-python src/evaluate.py
+# Step 3: Evaluate each experiment
+python src/evaluation/evaluate_lstm_attention.py
+python src/evaluation/evaluate_lstm.py
+python src/evaluation/evaluate_random_forest.py
+python src/evaluation/evaluate_hist_gradient_boosting.py
+python src/evaluation/evaluate_mlp.py
 ```
 
 ## Key Results
 
-### Model Performance (Task 5)
-- **LSTM Accuracy**: 62.79% | **F1-Score**: 51.00% | **ROC-AUC**: 77.76%
-- **Random Forest Accuracy**: 72.15% ⭐ | **F1-Score**: 61.95%
-- **Optimal Sequence Length**: 5 frames (65.89% accuracy)
+### Final Test Performance
+
+All metrics below are computed on the held-out NSL-KDD test set. LSTM-based
+models use sequence windows, so their test set contains 22,540 samples instead
+of 22,544 tabular samples.
+
+| Model | Accuracy | Macro F1 | Weighted F1 | Weighted ROC-AUC | Weighted PR-AUC |
+|-------|---------:|---------:|------------:|-----------------:|----------------:|
+| LSTM + Attention | 0.7652 | 0.5705 | 0.7288 | 0.9349 | 0.8482 |
+| LSTM | 0.7536 | 0.5658 | 0.7195 | 0.9272 | 0.8368 |
+| MLP | 0.7575 | 0.5764 | 0.7255 | 0.9340 | 0.8739 |
+| Random Forest | 0.7471 | 0.4866 | 0.6983 | 0.9346 | 0.8848 |
+| HistGradientBoosting | 0.7692 | 0.5644 | 0.7360 | 0.9517 | 0.8956 |
+
+### Interpretation
+
+- **Best overall test accuracy:** HistGradientBoosting, slightly ahead of
+  LSTM + Attention.
+- **Best macro F1:** MLP, slightly ahead of the LSTM variants.
+- **Best weighted ROC-AUC and PR-AUC:** HistGradientBoosting.
+- **Main limitation:** all models struggle with rare attacks, especially R2L
+  and U2R. Boosting improves Random Forest on these classes, but R2L/U2R
+  remain difficult.
+
+The validation accuracy can be much higher than the test accuracy because the
+NSL-KDD test set has a different class distribution and contains harder attack
+patterns. For example, R2L is only 0.79% of the tabular training set but 12.81%
+of the tabular test set. Therefore, the test metrics above are the numbers to
+use for final conclusions.
+
+### Stability Under Gaussian Perturbations
+
+Prediction stability is the fraction of predictions that remain unchanged after
+adding Gaussian noise to normalized inputs. Higher is better.
+
+| Model | Stability sigma=0.01 | Stability sigma=0.05 | Stability sigma=0.10 | Accuracy sigma=0.10 |
+|-------|---------------------:|---------------------:|---------------------:|--------------------:|
+| LSTM + Attention | 0.9811 | 0.8594 | 0.7356 | 0.6446 |
+| LSTM | 0.9807 | 0.8404 | 0.7436 | 0.6264 |
+| MLP | 0.9870 | 0.8978 | 0.8215 | 0.6789 |
+| Random Forest | 0.9248 | 0.8745 | 0.8244 | 0.5994 |
+| HistGradientBoosting | 0.7738 | 0.7024 | 0.6323 | 0.5298 |
+
+HistGradientBoosting gives the best clean performance, but it is the least
+stable under synthetic input perturbations. MLP and Random Forest are more
+stable in prediction consistency, while the LSTM variants degrade more smoothly
+than HistGradientBoosting under stronger noise.
 
 ### Output Files
-- Training history: `results/`
-- Visualizations: `results/visualizations/`
-- Model comparison: `results/model_comparison.csv`
-- Evaluation report: `results/evaluation_report.txt`
+Each experiment writes to its own mini-folder:
+
+| Experiment | Output folder |
+|------------|---------------|
+| LSTM + Attention | `results/lstm_attention/` |
+| LSTM sans attention | `results/lstm/` |
+| MLP | `results/mlp/` |
+| Random Forest | `results/random_forest/` |
+| HistGradientBoosting | `results/hist_gradient_boosting/` |
+
+Inside each folder, use the same layout:
+
+```text
+models/                 trained model checkpoints
+metrics/                JSON/CSV metrics, predictions, history
+reports/                classification reports
+visualizations/         confusion matrices, ROC/PR curves
+visualizations/explainability/
+explainability/         SHAP, attention, and stability raw outputs
+```
 
 ## Important Files to Back Up
 
@@ -86,7 +176,7 @@ python src/evaluate.py
 |------|------|-----------|--------|
 | `src/*.py` | ~50KB | **CRITICAL** | ✅ YES |
 | `requirements.txt` | <1KB | **CRITICAL** | ✅ YES |
-| `models/lstm_model.h5` | ~500KB | HIGH | ⚠️ Optional |
+| `results/<experiment>/models/` | varies | HIGH | ⚠️ Optional |
 | `data/raw/*.txt` | ~150MB | HIGH | ⚠️ Optional |
 | `data/processed/` | ~200MB | HIGH | ⚠️ Optional |
 | `pyrightconfig.json` | <1KB | MEDIUM | ✅ YES |
@@ -166,8 +256,8 @@ python src/evaluate.py
 ```
 📦 Raw data: data/raw/*.txt (150MB)
 📦 Processed data: data/processed/*.npy (200MB)
-📦 Model weights: models/lstm_model.h5 (500KB)
-📦 Visualizations: results/visualizations/*.png
+📦 Model weights: results/<experiment>/models/
+📦 Visualizations: results/<experiment>/visualizations/*.png
 ```
 
 ## Git Workflow Example

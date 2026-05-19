@@ -1,0 +1,120 @@
+{
+    "model": "HistGradientBoosting",
+    "method": "TreeExplainer",
+    "background_size": 60,
+    "explained_samples": 30,
+    "nsamples": null,
+    "top_global_features": [
+        {
+            "feature": "dst_host_srv_count",
+            "mean_abs_shap": 0.4799204761618815
+        },
+        {
+            "feature": "count",
+            "mean_abs_shap": 0.44844198942760805
+        },
+        {
+            "feature": "src_bytes",
+            "mean_abs_shap": 0.28083009764126
+        },
+        {
+            "feature": "dst_host_serror_rate",
+            "mean_abs_shap": 0.23874436662167406
+        },
+        {
+            "feature": "dst_bytes",
+            "mean_abs_shap": 0.22826572874854567
+        },
+        {
+            "feature": "total_bytes",
+            "mean_abs_shap": 0.2081671820519929
+        },
+        {
+            "feature": "dst_host_rerror_rate",
+            "mean_abs_shap": 0.12081867379474227
+        },
+        {
+            "feature": "dst_host_diff_srv_rate",
+            "mean_abs_shap": 0.10315814373050532
+        },
+        {
+            "feature": "dst_host_same_src_port_rate",
+            "mean_abs_shap": 0.09447580054120823
+        },
+        {
+            "feature": "diff_srv_rate",
+            "mean_abs_shap": 0.09097148253930407
+        }
+    ],
+    "explained_indices": [
+        12598,
+        22374,
+        2040,
+        18523,
+        9841,
+        22146,
+        19256,
+        17230,
+        12942,
+        2578,
+        14736,
+        4836,
+        10608,
+        13583,
+        7830,
+        6848,
+        12729,
+        12735,
+        694,
+        6232,
+        19236,
+        12470,
+        15050,
+        17909,
+        14297,
+        782,
+        5273,
+        1783,
+        9207,
+        9898
+    ],
+    "explained_true_classes": [
+        "DoS",
+        "DoS",
+        "normal",
+        "normal",
+        "normal",
+        "DoS",
+        "normal",
+        "Probe",
+        "normal",
+        "DoS",
+        "DoS",
+        "normal",
+        "normal",
+        "Probe",
+        "Probe",
+        "Probe",
+        "DoS",
+        "DoS",
+        "normal",
+        "normal",
+        "DoS",
+        "DoS",
+        "normal",
+        "normal",
+        "normal",
+        "DoS",
+        "DoS",
+        "DoS",
+        "normal",
+        "normal"
+    ],
+    "files": {
+        "global_importance_csv": "results\\hist_gradient_boosting\\explainability\\shap_global_feature_importance.csv",
+        "class_importance_csv": "results\\hist_gradient_boosting\\explainability\\shap_feature_importance_by_class.csv",
+        "shap_values": "results\\hist_gradient_boosting\\explainability\\shap_values_hist_gradient_boosting.npy",
+        "global_plot": "results\\hist_gradient_boosting\\visualizations\\explainability\\shap_global_feature_importance.png",
+        "class_plot": "results\\hist_gradient_boosting\\visualizations\\explainability\\shap_feature_importance_by_class.png"
+    }
+}

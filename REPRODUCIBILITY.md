@@ -44,6 +44,84 @@ Stability analysis:
 .\venv_dml\Scripts\python.exe src\explainability\stability_lstm_attention.py
 ```
 
+## Experiment 3b: LSTM sans attention
+
+Training:
+
+```powershell
+.\venv_dml\Scripts\python.exe src\training\train_lstm.py
+```
+
+Evaluation:
+
+```powershell
+.\venv_dml\Scripts\python.exe src\evaluation\evaluate_lstm.py
+```
+
+SHAP explanations:
+
+```powershell
+.\venv_dml\Scripts\python.exe src\explainability\shap_lstm.py
+```
+
+Stability analysis:
+
+```powershell
+.\venv_dml\Scripts\python.exe src\explainability\stability_lstm.py
+```
+
+## Experiment 1: Random Forest baseline
+
+Training:
+
+```powershell
+.\venv_dml\Scripts\python.exe src\training\train_random_forest.py
+```
+
+Evaluation:
+
+```powershell
+.\venv_dml\Scripts\python.exe src\evaluation\evaluate_random_forest.py
+```
+
+SHAP explanations:
+
+```powershell
+.\venv_dml\Scripts\python.exe src\explainability\shap_random_forest.py
+```
+
+Stability analysis:
+
+```powershell
+.\venv_dml\Scripts\python.exe src\explainability\stability_random_forest.py
+```
+
+## Experiment 1b: HistGradientBoosting baseline
+
+Training:
+
+```powershell
+.\venv_dml\Scripts\python.exe src\training\train_hist_gradient_boosting.py
+```
+
+Evaluation:
+
+```powershell
+.\venv_dml\Scripts\python.exe src\evaluation\evaluate_hist_gradient_boosting.py
+```
+
+SHAP explanations:
+
+```powershell
+.\venv_dml\Scripts\python.exe src\explainability\shap_hist_gradient_boosting.py
+```
+
+Stability analysis:
+
+```powershell
+.\venv_dml\Scripts\python.exe src\explainability\stability_hist_gradient_boosting.py
+```
+
 ## Result layout
 
 ```text
@@ -55,15 +133,40 @@ results/
     visualizations/
       explainability/
     explainability/
-```
-
-Future experiments should use the same layout:
-
-```text
-results/
+  lstm/
+    models/
+    metrics/
+    reports/
+    visualizations/
+      explainability/
+    explainability/
   mlp/
+    models/
+    metrics/
+    reports/
+    visualizations/
+      explainability/
+    explainability/
   random_forest/
+    models/
+    metrics/
+    reports/
+    visualizations/
+      explainability/
+    explainability/
+  hist_gradient_boosting/
+    models/
+    metrics/
+    reports/
+    visualizations/
+      explainability/
+    explainability/
 ```
+
+The legacy global folders such as `results/metrics/`, `results/models/`,
+`results/reports/`, `results/visualizations/`, and `results/explainability/`
+are kept only for backward compatibility. New runs should use the mini-folder
+for the experiment name.
 
 ## Experiment 2: MLP
 
