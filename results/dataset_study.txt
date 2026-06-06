@@ -1,0 +1,98 @@
+NSL-KDD DATASET STUDY
+============================================================
+Raw train shape: (125973, 43)
+Raw test shape: (22544, 43)
+Raw columns: 43
+Processed features: 44
+Classes: ['DoS', 'Probe', 'R2L', 'U2R', 'normal']
+
+Categorical features: protocol_type, service, flag
+Protocol values: {'tcp': 102689, 'udp': 14993, 'icmp': 8291}
+Number of services: 70
+Number of flags: 11
+
+Missing values:
+Train missing: 0
+Test missing: 0
+
+Raw train attack labels:
+normal             67343
+neptune            41214
+satan               3633
+ipsweep             3599
+portsweep           2931
+smurf               2646
+nmap                1493
+back                 956
+teardrop             892
+warezclient          890
+pod                  201
+guess_passwd          53
+buffer_overflow       30
+warezmaster           20
+land                  18
+imap                  11
+rootkit               10
+loadmodule             9
+ftp_write              8
+multihop               7
+phf                    4
+perl                   3
+spy                    2
+
+Raw test attack labels:
+normal             9711
+neptune            4657
+guess_passwd       1231
+mscan               996
+warezmaster         944
+apache2             737
+satan               735
+processtable        685
+smurf               665
+back                359
+snmpguess           331
+saint               319
+mailbomb            293
+snmpgetattack       178
+portsweep           157
+ipsweep             141
+httptunnel          133
+nmap                 73
+pod                  41
+buffer_overflow      20
+multihop             18
+named                17
+ps                   15
+sendmail             14
+rootkit              13
+xterm                13
+teardrop             12
+xlock                 9
+land                  7
+xsnoop                4
+ftp_write             3
+worm                  2
+loadmodule            2
+perl                  2
+sqlattack             2
+udpstorm              2
+phf                   2
+imap                  1
+
+Processed train class distribution:
+DoS: 45927 (36.46%)
+Probe: 11656 (9.25%)
+R2L: 995 (0.79%)
+U2R: 52 (0.04%)
+normal: 67343 (53.46%)
+
+Processed test class distribution:
+DoS: 7458 (33.08%)
+Probe: 2421 (10.74%)
+R2L: 2887 (12.81%)
+U2R: 67 (0.30%)
+normal: 9711 (43.08%)
+
+Processed feature names:
+duration, protocol_type, service, flag, src_bytes, dst_bytes, land, wrong_fragment, urgent, hot, num_failed_logins, logged_in, num_compromised, root_shell, su_attempted, num_root, num_file_creations, num_shells, num_access_files, num_outbound_cmds, is_host_login, is_guest_login, count, srv_count, serror_rate, srv_serror_rate, rerror_rate, srv_rerror_rate, same_srv_rate, diff_srv_rate, srv_diff_host_rate, dst_host_count, dst_host_srv_count, dst_host_same_srv_rate, dst_host_diff_srv_rate, dst_host_same_src_port_rate, dst_host_srv_diff_host_rate, dst_host_serror_rate, dst_host_srv_serror_rate, dst_host_rerror_rate, dst_host_srv_rerror_rate, byte_rate, total_bytes, byte_ratio

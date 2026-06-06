@@ -1,0 +1,805 @@
+         Institut National des Postes et Télécommunications
+                     Filière : Cybersécurité et Confiance Numérique
+                              Module : Deep Learning
+
+
+
+
+                      RAPPORT DE PROJET
+                        Project 5 : Explainable IDS
+
+
+
+
+Réalisé par :
+                                                                      Encadré par :
+Meriame El Ouahabi
+                                                                      Pr. Tarik Fissaa
+Marwa El Hamdaoui
+
+
+
+                                    Date : Mai 2026
+
+                           Année universitaire : 2025 – 2026
+Table des matières
+
+1 Introduction                                                                              4
+  1.1 Contexte . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .    4
+  1.2 Problématique . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .     4
+  1.3 Objectifs du projet . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .     4
+  1.4 Contributions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .     5
+
+2 Modèle de menace et enjeux du projet                                                      6
+  2.1 Systèmes de détection d’intrusion . . . . . . . . . . . . . . . . . . . . . . .       6
+  2.2 Modèle de menace . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .        6
+  2.3 Problématique de robustesse et d’explicabilité . . . . . . . . . . . . . . . .        7
+
+3 Jeu de données et prétraitement                                                     8
+  3.1 Présentation du dataset NSL-KDD . . . . . . . . . . . . . . . . . . . . . . 8
+  3.2 Prétraitement des données . . . . . . . . . . . . . . . . . . . . . . . . . . . 9
+  3.3 Création des séquences pour les modèles LSTM . . . . . . . . . . . . . . . 10
+
+4 Méthodologie et modèles                                                                  11
+  4.1 Pipeline global du système . . . . . . . . . . . . . . . . . . . . . . . . . . .     11
+  4.2 Modèles de référence . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .     12
+      4.2.1 Random Forest . . . . . . . . . . . . . . . . . . . . . . . . . . . . .        12
+      4.2.2 HistGradientBoosting . . . . . . . . . . . . . . . . . . . . . . . . . .       12
+  4.3 Modèles Deep Learning . . . . . . . . . . . . . . . . . . . . . . . . . . . . .      12
+      4.3.1 MLP . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .      13
+      4.3.2 LSTM . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .       13
+      4.3.3 LSTM avec mécanisme d’attention . . . . . . . . . . . . . . . . . .            13
+  4.4 Processus d’entraînement . . . . . . . . . . . . . . . . . . . . . . . . . . . .     14
+  4.5 Métriques d’évaluation . . . . . . . . . . . . . . . . . . . . . . . . . . . . .     14
+
+5 Évaluation des performances                                                              16
+  5.1 Résultats globaux . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .    16
+  5.2 Comparaison des modèles de référence . . . . . . . . . . . . . . . . . . . .         16
+  5.3 Analyse des classes rares . . . . . . . . . . . . . . . . . . . . . . . . . . . .    17
+  5.4 Discussion des résultats . . . . . . . . . . . . . . . . . . . . . . . . . . . . .   18
+
+
+
+                                             1
+6 Analyse d’explicabilité                                                                  19
+  6.1 Importance de l’explicabilité dans les IDS . . . . . . . . . . . . . . . . . . .     19
+  6.2 Méthode SHAP . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .       19
+  6.3 Analyse SHAP des modèles . . . . . . . . . . . . . . . . . . . . . . . . . .         19
+  6.4 Interprétation des caractéristiques importantes . . . . . . . . . . . . . . . .      20
+  6.5 Limites des explications . . . . . . . . . . . . . . . . . . . . . . . . . . . .     21
+
+7 Analyse de stabilité et robustesse                                                       22
+  7.1 Principe des perturbations et protocole expérimental . . . . . . . . . . . .         22
+  7.2 Résultats de stabilité . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .   22
+  7.3 Compromis performance / robustesse . . . . . . . . . . . . . . . . . . . . .         23
+
+8 Implications de sécurité                                                                 24
+  8.1 Risques d’évasion adversariale . . . . . . . . . . . . . . . . . . . . . . . . .     24
+  8.2 Faiblesses sur les attaques rares . . . . . . . . . . . . . . . . . . . . . . . .    24
+  8.3 Recommandations de sécurité . . . . . . . . . . . . . . . . . . . . . . . . .        24
+
+9 Conclusion                                                                               26
+
+
+
+
+                                             2
+Résumé
+
+    Les systèmes de détection d’intrusion (IDS) basés sur l’apprentissage automatique et
+profond jouent un rôle important dans l’identification des activités malveillantes au sein
+des réseaux modernes. Cependant, malgré leurs bonnes performances, ces modèles sont
+souvent considérés comme des black-box, ce qui limite l’interprétation de leurs décisions
+et soulève des préoccupations concernant leur robustesse face à des perturbations adver-
+sariales.
+    Dans ce projet, nous proposons une étude comparative de plusieurs modèles d’appren-
+tissage automatique et profond appliqués à la détection d’intrusion à partir du dataset
+NSL-KDD. Les modèles étudiés incluent un Random Forest, un HistGradientBoosting, un
+Multilayer Perceptron (MLP), un LSTM ainsi qu’un LSTM avec mécanisme d’attention.
+L’objectif principal est d’évaluer non seulement les performances de classification, mais
+également l’explicabilité et la stabilité des prédictions.
+    Les expériences ont été réalisées sur des représentations tabulaires et séquentielles
+des données réseau après une phase de prétraitement incluant l’encodage des variables
+catégorielles, la normalisation des caractéristiques et la création de fenêtres temporelles
+pour les modèles séquentiels. Les performances ont été évaluées à l’aide de plusieurs mé-
+triques telles que l’Accuracy, le Macro F1-score, le Weighted F1-score, le ROC-AUC et le
+PR-AUC.
+    Afin d’améliorer l’interprétation des décisions des modèles, des méthodes d’explicabi-
+lité basées sur SHAP ont été appliquées à l’ensemble des modèles. Une visualisation du
+mécanisme d’attention a également été réalisée pour le modèle LSTM avec attention. Les
+résultats montrent que plusieurs caractéristiques liées aux erreurs réseau et au comporte-
+ment des connexions jouent un rôle majeur dans les décisions de classification.
+    Une analyse de stabilité a ensuite été menée en appliquant des perturbations gaus-
+siennes sur les données d’entrée afin d’évaluer la robustesse des prédictions. Les résultats
+obtenus mettent en évidence un compromis important entre performance et robustesse. Le
+modèle HistGradientBoosting obtient les meilleures performances sur les données propres,
+tandis que le MLP présente une meilleure stabilité sous perturbation.
+    Enfin, une analyse des implications de sécurité a été réalisée afin d’étudier les risques
+liés aux attaques rares, aux changements de distribution entre les ensembles d’entraîne-
+ment et de test, ainsi qu’aux possibilités d’évasion adversariale. Cette étude montre que
+l’explicabilité et la stabilité constituent des éléments essentiels pour renforcer la confiance
+et la fiabilité des IDS basés sur l’intelligence artificielle.
+
+
+                                              3
+Introduction
+
+1.1     Contexte
+    Avec l’augmentation des cyberattaques et du trafic réseau, les systèmes de détection
+d’intrusion (Intrusion Detection Systems – IDS ) sont devenus essentiels pour protéger les
+infrastructures informatiques. Leur objectif est d’identifier les comportements malveillants
+au sein du trafic réseau afin de détecter rapidement les attaques et les activités suspectes.
+    Les approches basées sur l’apprentissage automatique et le deep learning permettent
+aujourd’hui d’améliorer les capacités de détection grâce à leur aptitude à analyser de
+grandes quantités de données réseau. Cependant, ces modèles sont souvent difficiles à
+interpréter et peuvent être sensibles à de faibles perturbations des données d’entrée. Dans
+un contexte de cybersécurité, cette absence d’explicabilité et de robustesse peut limiter
+la confiance accordée aux prédictions du système.
+
+
+1.2     Problématique
+    Un IDS performant ne doit pas uniquement obtenir une bonne accuracy. Il doit éga-
+lement fournir des décisions interprétables et rester stable face à de légères modifications
+du trafic réseau. Un attaquant peut en effet modifier certaines caractéristiques afin de
+contourner le système de détection tout en conservant un comportement malveillant.
+    Le principal enjeu de ce projet est donc d’étudier le compromis entre performance,
+explicabilité et robustesse dans un système de détection d’intrusion basé sur l’intelligence
+artificielle.
+
+
+1.3     Objectifs du projet
+   Ce projet vise à concevoir et analyser un IDS explicable à partir du dataset NSL-
+KDD. Plusieurs modèles d’apprentissage automatique et profond ont été entraînés et
+comparés, notamment Random Forest, HistGradientBoosting, MLP, LSTM et LSTM avec
+mécanisme d’attention.
+   Les principaux objectifs sont :
+
+
+                                             4
+ — comparer les performances de plusieurs modèles ;
+ — interpréter les décisions grâce à SHAP ;
+ — analyser le mécanisme d’attention ;
+ — évaluer la stabilité des prédictions sous perturbation ;
+ — étudier les implications de sécurité liées à la robustesse des modèles.
+
+
+1.4    Contributions
+  Les principales contributions de ce travail sont :
+ — une comparaison entre plusieurs modèles ML et DL pour la détection d’intrusion ;
+ — une analyse d’explicabilité basée sur SHAP ;
+ — une étude de stabilité sous perturbations gaussiennes ;
+ — une analyse des risques de sécurité liés aux attaques rares et à l’évasion adversariale.
+
+
+
+
+                                            5
+Modèle de menace et enjeux du projet
+
+2.1     Systèmes de détection d’intrusion
+    Les systèmes de détection d’intrusion (Intrusion Detection Systems – IDS ) permettent
+de surveiller le trafic réseau afin d’identifier les comportements malveillants ou anormaux.
+Ils jouent un rôle important dans la protection des infrastructures informatiques en dé-
+tectant différents types d’attaques tels que les attaques DoS, les scans réseau ou les accès
+non autorisés.
+    Les approches classiques basées sur des signatures présentent des limites face aux
+nouvelles menaces et aux comportements complexes. Afin d’améliorer les capacités de
+détection, les techniques d’apprentissage automatique et de deep learning sont de plus en
+plus utilisées dans les IDS modernes.
+    Dans ce projet, plusieurs modèles de classification ont été entraînés sur le dataset
+NSL-KDD afin d’identifier différentes catégories d’attaques réseau.
+
+
+2.2     Modèle de menace
+    Dans ce projet, le système IDS surveille le trafic réseau et classe chaque connexion
+comme normale ou malveillante. L’attaquant cherche à contourner le système de détec-
+tion en modifiant légèrement certaines caractéristiques du trafic tout en conservant un
+comportement malveillant.
+    L’objectif du défenseur est de construire un IDS capable de maintenir de bonnes per-
+formances de classification tout en produisant des décisions interprétables et stables. Une
+attention particulière est portée à la robustesse des modèles face aux perturbations des
+données d’entrée.
+    Afin de simuler ce scénario, une analyse de stabilité a été réalisée à l’aide de pertur-
+bations gaussiennes appliquées aux données normalisées.
+
+
+
+
+                                             6
+2.3     Problématique de robustesse et d’explicabilité
+    Les modèles de deep learning offrent généralement de bonnes performances de détec-
+tion, mais ils sont souvent considérés comme des modèles black-box. Dans un contexte
+de cybersécurité, il est important de comprendre pourquoi une connexion est classifiée
+comme attaque afin d’analyser les alertes générées et de vérifier la cohérence des décisions
+du système.
+    De plus, un modèle performant sur des données propres peut devenir instable face à de
+faibles perturbations. Cette sensibilité peut représenter un risque de sécurité important,
+notamment dans le cas d’attaques d’évasion adversariale.
+    Le projet se concentre donc sur trois aspects principaux :
+  — les performances de détection ;
+  — l’explicabilité des décisions ;
+  — la robustesse des modèles face aux perturbations.
+
+
+
+
+                                             7
+Jeu de données et prétraitement
+
+3.1     Présentation du dataset NSL-KDD
+    Le dataset NSL-KDD est une version améliorée du dataset KDD’99 largement utilisé
+dans la recherche sur les systèmes de détection d’intrusion. Il contient des connexions
+réseau classifiées comme normales ou appartenant à différentes catégories d’attaques.
+    Dans ce projet, les fichiers KDDTrain+.txt et KDDTest+.txt ont été utilisés pour
+l’entraînement et l’évaluation des modèles. Le dataset contient initialement 43 colonnes
+décrivant différentes caractéristiques du trafic réseau. Après prétraitement et ingénierie
+de caractéristiques, le nombre total de variables utilisées est passé à 44.
+
+             Table 3.1 – Informations générales sur le dataset NSL-KDD
+
+                          Information                    Valeur
+                          Échantillons d’entraînement    125 973
+                          Échantillons de test           22 544
+                          Colonnes initiales               43
+                          Caractéristiques finales         44
+                          Classes principales               5
+                          Variables catégorielles           3
+                          Valeurs manquantes                0
+
+
+   Les principales variables catégorielles utilisées sont : protocol_type, service et flag.
+Les attaques ont été regroupées en cinq catégories principales : normal, DoS, Probe, R2L
+et U2R.
+
+
+
+
+                                               8
+          Table 3.2 – Distribution des classes dans les ensembles train et test
+
+                                 Classe    Train      Test
+                                 DoS       36.46%     33.08%
+                                 Probe      9.25%     10.74%
+                                 R2L        0.79%     12.81%
+                                 U2R        0.04%     0.30%
+                                 normal    53.46%     43.08%
+
+
+   Le dataset présente un déséquilibre important entre les différentes catégories d’at-
+taques, particulièrement pour les classes R2L et U2R qui restent faiblement représentées
+dans l’ensemble d’entraînement.
+
+
+3.2     Prétraitement des données
+    Une phase de prétraitement a été appliquée avant l’entraînement des modèles afin de
+produire des représentations adaptées aux approches tabulaires et séquentielles.
+    Les variables catégorielles ont été encodées avec LabelEncoder de la bibliothèque
+scikit-learn. Les labels détaillés NSL-KDD ont ensuite été regroupés en cinq catégories
+principales : DoS, Probe, R2L, U2R et normal.
+    Une étape de feature engineering a également été réalisée afin d’enrichir les informa-
+tions de trafic réseau. Trois nouvelles caractéristiques dérivées ont été ajoutées : byte_rate,
+total_bytes et byte_ratio. Ces variables ont été calculées à partir des caractéristiques
+src_bytes, dst_bytes et duration.
+    Les caractéristiques numériques ont ensuite été normalisées avec MinMaxScaler. Le
+scaler a été ajusté uniquement sur l’ensemble d’entraînement puis appliqué aux données
+de test afin d’éviter les fuites d’information.
+    Deux représentations des données ont ensuite été construites : une représentation ta-
+bulaire utilisée pour Random Forest, HistGradientBoosting et MLP, et une représentation
+séquentielle utilisée pour les modèles LSTM.
+
+                       Table 3.3 – Dimensions finales des données
+
+                   Représentation             Train               Test
+                   Tabulaire               (125973, 44)        (22544, 44)
+                   Séquentielle LSTM      (125969, 5, 44)    (22540, 5, 44)
+
+
+   Afin de limiter l’impact du déséquilibre des classes, des poids de classes ont été utilisés
+pendant l’entraînement des modèles, sans appliquer de techniques de rééchantillonnage.
+
+
+
+
+                                              9
+3.3     Création des séquences pour les modèles LSTM
+    Les modèles LSTM utilisent une représentation séquentielle construite à partir des
+données tabulaires normalisées.
+    Les séquences ont été générées à l’aide d’une fenêtre glissante de taille 5 avec un pas
+égal à 1. Chaque séquence contient cinq connexions réseau successives avec recouvrement
+entre les fenêtres.
+    Le label associé à une séquence correspond au label du dernier élément de la fenêtre.
+Cette approche permet aux modèles LSTM d’exploiter les dépendances temporelles pré-
+sentes dans le trafic réseau et d’apprendre les relations entre plusieurs connexions succes-
+sives.
+
+
+
+
+                                            10
+Méthodologie et modèles
+
+4.1     Pipeline global du système
+    La méthodologie suivie dans ce projet repose sur une chaîne de traitement complète
+allant des données brutes NSL-KDD jusqu’à l’évaluation des modèles de détection d’intru-
+sion. Les données sont d’abord prétraitées et enrichies par ingénierie de caractéristiques
+avant la construction de deux représentations : une représentation tabulaire destinée aux
+modèles classiques et au MLP, et une représentation séquentielle utilisée par les modèles
+LSTM.
+    Plusieurs modèles de machine learning et de deep learning sont ensuite entraînés puis
+comparés à l’aide de différentes métriques adaptées aux jeux de données déséquilibrés.
+    La figure 4.1 présente les principales étapes du système proposé.
+
+
+
+
+       Figure 4.1 – Pipeline global du système de détection d’intrusion proposé
+
+
+
+
+                                           11
+4.2     Modèles de référence
+
+4.2.1    Random Forest
+Le modèle Random Forest a été utilisé comme
+                                                     Table 4.1 – Hyperparamètres du
+première baseline de classification pour les don-
+                                                     modèle Random Forest
+nées tabulaires. Ce choix est motivé par sa sim-
+plicité d’utilisation, sa robustesse face au bruit   Paramètre               Valeur
+et sa capacité à modéliser des relations non li-     n_estimators              200
+néaires entre les caractéristiques réseau.
+                                                     criterion                 gini
+Il constitue une référence classique dans les sys-
+                                                     max_depth                None
+tèmes IDS et permet d’établir un premier point
+de comparaison avant l’utilisation des modèles       max_features              sqrt
+deep learning.                                       class_weight       balanced_subsample
+                                                     random_state               42
+
+
+
+
+4.2.2    HistGradientBoosting
+Après l’utilisation de Random Forest, le mo-
+                                                     Table 4.2 – Hyperparamètres du
+dèle HistGradientBoosting a été introduit afin
+                                                     modèle HistGradientBoosting
+d’explorer une approche tabulaire plus avan-
+cée. Contrairement à Random Forest, cette mé-           Paramètre            Valeur
+thode construit les arbres de manière séquen-           learning_rate         0.05
+tielle, chaque nouvel arbre cherchant à corriger
+                                                        max_iter              350
+les erreurs des précédents.
+                                                        max_leaf_nodes         31
+Ce modèle est adapté aux données structurées et
+permet une meilleure prise en compte des inter-         loss                log_loss
+actions complexes entre les caractéristiques ré-        l2_regularization     0.01
+seau. Il supporte également l’utilisation de poids      early_stopping        True
+d’échantillons afin d’augmenter l’influence des         random_state           42
+attaques rares pendant l’entraînement.
+
+
+4.3     Modèles Deep Learning
+   Trois architectures deep learning ont été utilisées : un MLP pour la représentation
+tabulaire, un LSTM pour exploiter des fenêtres de connexions successives, et un LSTM
+avec attention pour introduire une forme d’explicabilité temporelle.
+
+
+
+
+                                             12
+                   Figure 4.2 – Architectures deep learning utilisées
+
+
+4.3.1    MLP
+    Le MLP constitue la baseline deep learning tabulaire. Il prend en entrée les 44 carac-
+téristiques prétraitées et utilise deux couches denses de 128 et 64 neurones avec activation
+ReLU, Batch Normalization, Dropout et régularisation L2. La couche de sortie utilise une
+activation Softmax pour prédire l’une des cinq classes IDS.
+
+
+4.3.2    LSTM
+    Le modèle LSTM utilise des séquences de forme 5×44, correspondant à cinq connexions
+successives. Cette représentation permet d’intégrer un contexte local entre plusieurs connexions
+réseau, ce qui est pertinent en cybersécurité où certains comportements suspects appa-
+raissent dans une succession d’événements plutôt que dans un seul enregistrement isolé.
+    Le modèle contient une couche LSTM de 64 unités, suivie d’une Batch Normalization,
+d’un Dropout, d’une couche dense de 64 neurones et d’une sortie Softmax.
+
+
+4.3.3    LSTM avec mécanisme d’attention
+    Le modèle LSTM avec attention reprend la même représentation séquentielle, mais
+conserve les sorties de chaque pas de temps avec return_sequences=True. Une couche
+d’attention temporelle additive calcule ensuite un poids pour chaque connexion de la
+fenêtre, afin de construire un vecteur de contexte utilisé pour la classification finale.
+    Ce modèle est central dans ce projet, car il combine modélisation séquentielle et in-
+terprétabilité temporelle.
+
+
+
+
+                                            13
+                    Table 4.3 – Résumé des architectures deep learning
+
+    Modèle                 Entrée         Architecture principale         Paramètres
+    MLP                       44            Dense 128 / Dense 64              15 109
+    LSTM                    5 × 44          LSTM 64 / Dense 64                32 645
+    LSTM + Attention        5 × 44     LSTM 64 / Attention / Dense 64         36 869
+
+
+
+4.4     Processus d’entraînement
+    Les modèles deep learning ont été entraînés avec l’optimiseur Adam et un taux d’ap-
+prentissage de 0.001. Un split de validation stratifié de 15% a été utilisé afin de préserver
+la distribution des classes pendant l’apprentissage.
+    Le déséquilibre des classes a été traité à l’aide de poids calculés avec compute_class_weight,
+sans appliquer d’oversampling ni SMOTE, afin de conserver la distribution originale du
+dataset.
+    Pour limiter le surapprentissage et stabiliser l’entraînement, les callbacks EarlyStopping,
+ReduceLROnPlateau et ModelCheckpoint ont été utilisés. Les expériences ont également
+été rendues reproductibles grâce à un seed fixe égal à 42.
+
+          Table 4.4 – Configuration d’entraînement des modèles deep learning
+
+ Paramètre                                                 Valeur
+ Optimiseur                                                 Adam
+ Learning rate                                              0.001
+ Fonction de perte                             sparse_categorical_crossentropy
+ Epochs max                                                   50
+ Validation split                                       15% stratifié
+ Batch size MLP                                              128
+ Batch size LSTM / Attention                                  64
+ Callbacks                           EarlyStopping, ReduceLROnPlateau, ModelCheckpoint
+ Seed expérimental                                            42
+
+
+   Les paramètres du tableau 4.4 concernent uniquement les modèles deep learning. Les
+modèles Random Forest et HistGradientBoosting utilisent les configurations spécifiques
+présentées précédemment.
+
+
+4.5     Métriques d’évaluation
+  Plusieurs métriques ont été utilisées afin d’évaluer les modèles IDS sur le dataset
+NSL-KDD, fortement déséquilibré entre classes majoritaires et attaques rares.
+
+
+                                             14
+    L’accuracy fournit une mesure globale des performances, mais reste insuffisante dans
+un contexte IDS, car un modèle peut obtenir un score élevé tout en détectant mal certaines
+attaques rares. Les métriques Precision et Recall permettent respectivement d’évaluer les
+faux positifs et la capacité de détection des attaques.
+    Le Macro F1 est particulièrement important dans ce projet, car il attribue la même
+importance à toutes les classes, y compris R2L et U2R. Le Weighted F1 fournit quant à
+lui une vision globale pondérée par la distribution réelle des données.
+    Les métriques ROC-AUC et PR-AUC ont également été utilisées pour mesurer la
+capacité de discrimination des modèles. PR-AUC est particulièrement adaptée aux data-
+sets déséquilibrés. Enfin, les matrices de confusion permettent d’identifier précisément les
+attaques confondues avec le trafic normal.
+
+                        Table 4.5 – Principales métriques utilisées
+
+               Métrique                            Objectif
+               Accuracy                      Performance globale
+               Precision                  Réduction des faux positifs
+               Recall                       Détection des attaques
+               Macro F1                   Évaluation des classes rares
+               Weighted F1              Performance pondérée globale
+               ROC-AUC                     Qualité de discrimination
+               PR-AUC              Performance sur données déséquilibrées
+               Confusion Matrix          Analyse détaillée des erreurs
+
+
+
+
+                                            15
+Évaluation des performances
+
+5.1     Résultats globaux
+   Les performances globales des différents modèles ont été évaluées à l’aide des métriques
+présentées précédemment. Les résultats montrent que les approches tabulaires restent très
+compétitives sur le dataset NSL-KDD, tandis que les modèles deep learning apportent une
+meilleure prise en compte de certaines classes minoritaires.
+
+                  Table 5.1 – Comparaison globale des performances
+
+ Modèle                  Accuracy      Macro F1 Weighted F1 ROC-AUC PR-AUC
+ LSTM + Attention           0.7652       0.5705          0.7288          0.9349        0.8482
+ LSTM                       0.7536       0.5658          0.7195          0.9272        0.8368
+ MLP                        0.7575       0.5764          0.7255          0.9340        0.8739
+ Random Forest              0.7471       0.4866          0.6983          0.9346        0.8848
+ HistGradientBoosting      0.7692        0.5644         0.7360           0.9517        0.8956
+
+    HistGradientBoosting obtient les meilleures performances globales en termes d’Accu-
+racy, Weighted F1, ROC-AUC et PR-AUC. Le modèle MLP présente cependant le meilleur
+Macro F1, indiquant une meilleure prise en compte des classes minoritaires.
+    Ces résultats montrent qu’une bonne performance globale ne garantit pas nécessaire-
+ment une bonne détection des attaques rares, ce qui constitue un enjeu important dans
+les systèmes IDS.
+
+
+5.2     Comparaison des modèles de référence
+   Le modèle Random Forest a d’abord été utilisé comme baseline tabulaire classique.
+Son analyse par classe montre cependant une limite sur les attaques rares, en particulier
+R2L et U2R, souvent confondues avec le trafic normal.
+   Pour améliorer cette baseline, HistGradientBoosting a été introduit comme approche
+tabulaire plus avancée. Contrairement à Random Forest, le boosting construit les arbres de
+manière séquentielle afin de corriger progressivement les erreurs des modèles précédents.
+
+                                            16
+             (a) Random Forest                           (b) HistGradientBoosting
+
+        Figure 5.1 – Matrices de confusion normalisées des modèles tabulaires
+
+    La figure 5.1 montre que HistGradientBoosting améliore partiellement la détection des
+classes rares par rapport à Random Forest, tout en conservant de meilleures performances
+globales. Cette comparaison justifie l’utilisation d’une baseline tabulaire plus forte avant
+l’analyse des modèles deep learning.
+
+
+5.3     Analyse des classes rares
+   Les classes R2L et U2R constituent les catégories les plus difficiles à détecter dans le
+dataset NSL-KDD. Elles sont très peu représentées dans l’ensemble d’entraînement, ce
+qui limite la capacité des modèles à apprendre leurs caractéristiques.
+
+                     Table 5.2 – Performances sur les classes rares
+
+       Modèle                    R2L Recall R2L F1 U2R Recall U2R F1
+       LSTM + Attention             0.09          0.16          0.24          0.34
+       LSTM                         0.10          0.18          0.28          0.34
+       MLP                          0.11         0.20          0.33          0.35
+       Random Forest                0.00          0.00          0.04          0.08
+       HistGradientBoosting         0.10          0.19          0.12          0.20
+
+
+    Le MLP obtient les meilleurs scores sur les classes rares, tandis que Random Forest
+présente les limites les plus importantes. Malgré certaines améliorations, les attaques R2L
+et U2R restent difficiles à détecter à cause du déséquilibre des classes et du décalage de
+distribution entre les ensembles d’entraînement et de test.
+    Dans un contexte IDS, cette faiblesse est critique, car une attaque rare classée comme
+trafic normal peut correspondre à une intrusion non détectée.
+
+
+
+
+                                            17
+5.4     Discussion des résultats
+    Les résultats montrent que les approches tabulaires restent particulièrement efficaces
+sur le dataset NSL-KDD. HistGradientBoosting obtient les meilleures performances glo-
+bales, ce qui confirme la pertinence des méthodes de boosting sur des données structurées.
+    Le modèle MLP constitue le modèle le plus équilibré entre classes majoritaires et mi-
+noritaires. Il obtient le meilleur Macro F1 et améliore davantage la détection des attaques
+rares par rapport aux autres modèles étudiés.
+    Les modèles séquentiels introduisent quant à eux une représentation temporelle locale à
+partir de fenêtres de connexions successives. Cette approche permet d’intégrer un contexte
+entre plusieurs événements réseau, même si le gain global reste limité par rapport aux
+approches tabulaires.
+    Le mécanisme d’attention améliore légèrement les performances du modèle LSTM tout
+en apportant une meilleure interprétabilité temporelle. Cependant, les attaques R2L et
+U2R restent difficiles à détecter pour l’ensemble des modèles.
+    Les résultats montrent également qu’une bonne accuracy ne garantit pas nécessaire-
+ment une bonne détection des attaques rares. L’évaluation d’un IDS doit donc prendre
+en compte des métriques adaptées aux classes minoritaires, ainsi que des aspects liés à la
+robustesse et à l’explicabilité.
+    Enfin, cette étude met en évidence un compromis important entre performance globale,
+détection des classes rares et stabilité des modèles, ce qui constitue un enjeu central pour
+les systèmes IDS modernes.
+
+
+
+
+                                            18
+Analyse d’explicabilité
+
+6.1     Importance de l’explicabilité dans les IDS
+    Dans un système IDS, une bonne prédiction ne suffit pas toujours. Il est également
+important de comprendre pourquoi une connexion est classée comme normale ou mal-
+veillante. L’explicabilité permet ainsi d’analyser les décisions du modèle, d’identifier les
+caractéristiques importantes et de renforcer la confiance dans le système de détection.
+    Dans ce projet, l’analyse d’explicabilité est basée sur SHAP et sur le mécanisme d’at-
+tention du modèle LSTM + Attention.
+
+
+6.2     Méthode SHAP
+    SHAP (SHapley Additive exPlanations) attribue une contribution à chaque caractéris-
+tique d’entrée afin d’expliquer la prédiction du modèle. Cette méthode permet d’identifier
+les variables qui influencent le plus les décisions des différents modèles IDS.
+    Dans ce projet, SHAP a été utilisé pour analyser les modèles tabulaires et deep lear-
+ning afin d’identifier les caractéristiques réseau les plus importantes dans la détection des
+attaques.
+
+
+6.3     Analyse SHAP des modèles
+  SHAP permet d’identifier les caractéristiques les plus influentes dans les décisions des
+modèles. Pour garder une analyse compacte, seules les importances globales des trois
+modèles les plus représentatifs sont présentées.
+
+
+
+
+                                             19
+           (a) HistGradientBoosting                           (b) MLP
+
+
+
+
+                                  (c) LSTM + Attention
+           Figure 6.1 – Importance globale des caractéristiques avec SHAP
+
+    Les caractéristiques les plus récurrentes sont principalement liées aux erreurs réseau,
+à la fréquence des connexions et au comportement des sessions. Les variables les plus
+importantes incluent notamment les taux d’erreurs vers l’hôte destination, le nombre de
+connexions, ainsi que l’état de connexion authentifiée.
+
+
+6.4     Interprétation des caractéristiques importantes
+   Les analyses SHAP montrent que plusieurs caractéristiques importantes sont direc-
+tement liées au comportement réseau et aux erreurs de connexion, ce qui reste cohérent
+avec les mécanismes classiques de détection d’intrusion.
+
+
+
+
+                                            20
+               Table 6.1 – Interprétation des principales caractéristiques
+
+                 Caractéristique                 Interprétation IDS
+                 dst_host_rerror_rate      Taux d’erreurs de connexion
+                 dst_host_serror_rate         Erreurs SYN suspectes
+                 count                       Fréquence des connexions
+                 dst_host_srv_count       Activité vers un même service
+                 logged_in                  État de session authentifiée
+                 src_bytes / dst_bytes        Volume de trafic réseau
+                 service                         Type de service ciblé
+
+
+    Ces résultats montrent que les modèles exploitent des caractéristiques cohérentes avec
+des comportements réseau réels, notamment les erreurs de connexion, les volumes de trafic
+et les activités répétitives vers certains services.
+
+
+6.5     Limites des explications
+    Bien que SHAP et le mécanisme d’attention apportent une meilleure interprétation
+des décisions des modèles, ces méthodes ne constituent pas des preuves causales. Une
+caractéristique importante selon SHAP influence la prédiction du modèle, sans garantir
+qu’elle soit directement responsable du comportement malveillant.
+    De plus, les visualisations d’attention montrent que le modèle LSTM + Attention
+concentre principalement son attention sur le dernier élément de la séquence, ce qui limite
+partiellement l’exploitation du contexte temporel complet.
+    Enfin, dans un contexte cybersécurité, la stabilité des explications reste un enjeu im-
+portant, car de faibles perturbations des données peuvent modifier les prédictions et les
+interprétations associées.
+
+
+
+
+                                            21
+Analyse de stabilité et robustesse
+
+7.1     Principe des perturbations et protocole expérimen-
+        tal
+    L’analyse de stabilité évalue la capacité des modèles IDS à conserver leurs décisions
+lorsque les données d’entrée subissent de faibles perturbations. Dans ce projet, un bruit
+gaussien a été ajouté aux caractéristiques normalisées avec différents niveaux d’intensité :
+σ ∈ {0.01, 0.05, 0.10}.
+    Les perturbations ont été appliquées aux données de test afin d’analyser l’évolution
+des prédictions et des performances sous variations des entrées.
+
+               Table 7.1 – Métriques utilisées pour l’analyse de stabilité
+
+                  Métrique                          Objectif
+                  Prediction Stability       Prédictions inchangées
+                  Accuracy Noisy           Accuracy sous perturbation
+                  Weighted F1 Noisy      Performance globale perturbée
+                  Confidence Drop        Baisse de confiance du modèle
+
+
+
+7.2     Résultats de stabilité
+    Les résultats montrent que tous les modèles perdent progressivement en stabilité
+lorsque l’intensité des perturbations augmente. Cependant, les comportements diffèrent
+selon les architectures.
+
+
+
+
+                                            22
+               Table 7.2 – Comparaison de stabilité sous perturbations
+
+         Modèle                   Stability (σ = 0.10)    Accuracy (σ = 0.10)
+         LSTM + Attention                 0.7356                  0.6446
+         LSTM                             0.7436                  0.6264
+         MLP                              0.8215                  0.6789
+         Random Forest                   0.8244                   0.5994
+         HistGradientBoosting             0.6323                  0.5298
+
+
+    HistGradientBoosting présente la plus forte dégradation sous perturbations malgré
+ses excellentes performances sur données propres. À l’inverse, MLP et Random Forest
+conservent une meilleure stabilité lorsque le bruit augmente.
+
+
+7.3     Compromis performance / robustesse
+    Les résultats mettent en évidence un compromis important entre performance globale
+et robustesse. HistGradientBoosting obtient les meilleurs résultats sur les données non
+perturbées, mais présente la plus forte sensibilité aux variations des entrées.
+    Le modèle MLP offre le comportement le plus équilibré entre performances globales,
+détection des classes rares et stabilité. Enfin, l’ajout du mécanisme d’attention améliore
+légèrement les performances du modèle LSTM, sans apporter de gain significatif en ro-
+bustesse.
+    Dans un contexte IDS, ces résultats montrent qu’un modèle très performant peut
+rester vulnérable à de faibles variations des données d’entrée, ce qui représente un risque
+potentiel face aux stratégies d’évasion.
+
+
+
+
+                                            23
+Implications de sécurité
+
+8.1     Risques d’évasion adversariale
+    Les résultats montrent qu’un modèle performant sur données propres peut rester vul-
+nérable sous perturbations. HistGradientBoosting obtient les meilleures performances glo-
+bales, mais présente également la plus forte sensibilité aux variations des entrées.
+    Dans un contexte IDS, cette instabilité représente un risque de sécurité, car un at-
+taquant peut modifier légèrement certaines caractéristiques du trafic afin de déplacer la
+prédiction vers une classe moins dangereuse, voire vers la classe normal.
+    Le modèle MLP apparaît plus équilibré entre performances globales, détection des
+classes rares et robustesse. Le mécanisme d’attention améliore quant à lui l’interprétabilité
+temporelle, sans garantir une meilleure robustesse.
+
+
+8.2     Faiblesses sur les attaques rares
+   Les attaques R2L et U2R restent les catégories les plus difficiles à détecter pour l’en-
+semble des modèles étudiés. Ce problème est renforcé par le fort déséquilibre du dataset
+NSL-KDD ainsi que par le décalage de distribution entre les ensembles d’entraînement et
+de test.
+   Dans un IDS, une attaque classée comme normal représente un risque critique, car
+aucune alerte n’est générée. Les métriques globales peuvent masquer cette faiblesse, ce
+qui justifie l’utilisation du Macro F1, des recalls par classe et des matrices de confusion
+normalisées.
+
+
+8.3     Recommandations de sécurité
+    Les résultats obtenus montrent qu’un IDS ne doit pas être évalué uniquement sur
+ses performances globales. Une attention particulière doit être portée à la robustesse des
+prédictions et à la détection des classes rares.
+    Avant un déploiement réel, il serait nécessaire d’utiliser des données plus récentes et
+mieux équilibrées, d’effectuer des tests adversariaux plus avancés et d’ajouter des mé-
+
+
+                                             24
+canismes de surveillance des prédictions incertaines. Une approche hybride combinant
+plusieurs modèles et des méthodes d’anomaly detection pourrait également améliorer la
+sécurité globale du système.
+
+
+
+
+                                         25
+Conclusion
+
+    Ce projet a permis d’étudier plusieurs approches de détection d’intrusion sur le da-
+taset NSL-KDD, en combinant modèles tabulaires, modèles deep learning et mécanismes
+d’explicabilité.
+    Les résultats montrent que HistGradientBoosting obtient les meilleures performances
+globales sur les données propres, tandis que le modèle MLP présente le comportement le
+plus équilibré entre performances, détection des classes rares et robustesse. Les modèles
+séquentiels LSTM introduisent une dimension temporelle intéressante, et le mécanisme
+d’attention apporte une meilleure interprétation des décisions du modèle.
+    L’analyse SHAP a permis d’identifier les caractéristiques réseau les plus influentes
+dans les décisions des modèles, tandis que l’analyse de stabilité a montré qu’un modèle
+performant peut rester sensible à de faibles perturbations des données d’entrée.
+    Cependant, les attaques rares R2L et U2R restent difficiles à détecter, ce qui constitue
+une limite importante dans un contexte IDS réel. Ces résultats montrent que l’évaluation
+d’un IDS ne doit pas se limiter à l’accuracy, mais doit également prendre en compte la
+robustesse, l’explicabilité et les performances sur les classes critiques.
+    Comme perspectives futures, il serait intéressant d’utiliser des datasets plus récents,
+d’étudier des attaques adversariales plus avancées et d’explorer des architectures hybrides
+combinant détection supervisée, anomaly detection et mécanismes de défense robustes.
+
+
+
+
+                                            26
+
