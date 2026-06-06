@@ -3,6 +3,7 @@
 ## Overview
 This project implements an LSTM-based Intrusion Detection System (IDS) using the NSL-KDD dataset. It compares deep learning (LSTM) with classical machine learning (Random Forest) approaches.
 
+**Note (branche) :** La version contenant l'analyse d'attaques adversariales (FGSM/PGD) se trouve sur la branche `fgsm-mlp-extension`. Basculez sur cette branche pour reproduire les expériences liées aux attaques.
 ## Project Structure
 ```
 IDS_LSTM_Project/
@@ -65,6 +66,9 @@ python src/train.py
 
 # Step 3: Evaluate and compare models
 python src/evaluate.py
+ 
+# Optional: run adversarial evasion analysis (FGSM/PGD)
+python src/explainability/adversarial_evasion_analysis.py
 ```
 
 ## Key Results
