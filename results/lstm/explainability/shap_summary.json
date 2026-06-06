@@ -1,0 +1,82 @@
+{
+    "model": "LSTM sans attention",
+    "background_size": 20,
+    "explained_samples": 10,
+    "nsamples": 80,
+    "method": "Kernel SHAP on flattened sequence windows",
+    "sequence_length": 5,
+    "top_global_features": [
+        {
+            "feature": "dst_host_rerror_rate",
+            "mean_abs_shap": 0.005576919145515833
+        },
+        {
+            "feature": "dst_host_diff_srv_rate",
+            "mean_abs_shap": 0.0037544401227535204
+        },
+        {
+            "feature": "dst_host_srv_count",
+            "mean_abs_shap": 0.0034680651811694147
+        },
+        {
+            "feature": "srv_count",
+            "mean_abs_shap": 0.003380771096315954
+        },
+        {
+            "feature": "diff_srv_rate",
+            "mean_abs_shap": 0.0030958487840545045
+        },
+        {
+            "feature": "dst_host_same_srv_rate",
+            "mean_abs_shap": 0.0030761984789365363
+        },
+        {
+            "feature": "duration",
+            "mean_abs_shap": 0.0025183425315125885
+        },
+        {
+            "feature": "logged_in",
+            "mean_abs_shap": 0.0024992903135182152
+        },
+        {
+            "feature": "dst_host_serror_rate",
+            "mean_abs_shap": 0.002294506243552089
+        },
+        {
+            "feature": "dst_host_count",
+            "mean_abs_shap": 0.0021199540854263776
+        }
+    ],
+    "explained_indices": [
+        7989,
+        15785,
+        15280,
+        14232,
+        1530,
+        20130,
+        17081,
+        3722,
+        21876,
+        10044
+    ],
+    "explained_true_classes": [
+        "DoS",
+        "R2L",
+        "normal",
+        "DoS",
+        "DoS",
+        "normal",
+        "normal",
+        "Probe",
+        "normal",
+        "DoS"
+    ],
+    "files": {
+        "global_importance_csv": "results\\lstm\\explainability\\shap_global_feature_importance.csv",
+        "class_importance_csv": "results\\lstm\\explainability\\shap_feature_importance_by_class.csv",
+        "shap_values": "results\\lstm\\explainability\\shap_values_lstm.npy",
+        "global_plot": "results\\lstm\\visualizations\\explainability\\shap_global_feature_importance.png",
+        "class_plot": "results\\lstm\\visualizations\\explainability\\shap_feature_importance_by_class.png"
+    },
+    "interpretation_note": "Kernel SHAP receives flattened LSTM windows because it expects 1D/2D instances. Scores are reshaped back to sequence form and averaged across timesteps to recover feature-level explanations."
+}

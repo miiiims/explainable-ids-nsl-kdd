@@ -1,0 +1,54 @@
+{
+    "model": "Random Forest",
+    "background_size": 80,
+    "explained_samples": 30,
+    "top_global_features": [
+        {
+            "feature": "dst_host_srv_count",
+            "mean_abs_shap": 0.04287605395453552
+        },
+        {
+            "feature": "logged_in",
+            "mean_abs_shap": 0.03510494588467671
+        },
+        {
+            "feature": "service",
+            "mean_abs_shap": 0.026965349809973088
+        },
+        {
+            "feature": "dst_host_same_src_port_rate",
+            "mean_abs_shap": 0.025833566184119267
+        },
+        {
+            "feature": "count",
+            "mean_abs_shap": 0.017267898294170626
+        },
+        {
+            "feature": "byte_rate",
+            "mean_abs_shap": 0.016810112998481244
+        },
+        {
+            "feature": "srv_count",
+            "mean_abs_shap": 0.015481855399435049
+        },
+        {
+            "feature": "dst_host_diff_srv_rate",
+            "mean_abs_shap": 0.015190035367439791
+        },
+        {
+            "feature": "dst_host_same_srv_rate",
+            "mean_abs_shap": 0.014829709478076847
+        },
+        {
+            "feature": "dst_host_count",
+            "mean_abs_shap": 0.014455623403331546
+        }
+    ],
+    "files": {
+        "global_importance_csv": "results\\random_forest\\explainability\\shap_global_feature_importance.csv",
+        "class_importance_csv": "results\\random_forest\\explainability\\shap_feature_importance_by_class.csv",
+        "shap_values": "results\\random_forest\\explainability\\shap_values_random_forest.npy",
+        "global_plot": "results\\random_forest\\visualizations\\explainability\\shap_global_feature_importance.png",
+        "class_plot": "results\\random_forest\\visualizations\\explainability\\shap_feature_importance_by_class.png"
+    }
+}

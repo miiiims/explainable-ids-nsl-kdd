@@ -1,0 +1,102 @@
+{
+    "model": "LSTM+Attention",
+    "method": "Kernel SHAP on flattened sequence windows",
+    "background_size": 40,
+    "explained_samples": 20,
+    "nsamples": 120,
+    "sequence_length": 5,
+    "top_global_features": [
+        {
+            "feature": "dst_host_rerror_rate",
+            "mean_abs_shap": 0.006962139232474863
+        },
+        {
+            "feature": "dst_host_serror_rate",
+            "mean_abs_shap": 0.0035127812113366088
+        },
+        {
+            "feature": "protocol_type",
+            "mean_abs_shap": 0.0031775743072450105
+        },
+        {
+            "feature": "rerror_rate",
+            "mean_abs_shap": 0.003071391608082779
+        },
+        {
+            "feature": "dst_host_srv_count",
+            "mean_abs_shap": 0.002843065323693505
+        },
+        {
+            "feature": "logged_in",
+            "mean_abs_shap": 0.0025386906415133656
+        },
+        {
+            "feature": "same_srv_rate",
+            "mean_abs_shap": 0.0023988717624445184
+        },
+        {
+            "feature": "dst_host_same_srv_rate",
+            "mean_abs_shap": 0.0022987233684829697
+        },
+        {
+            "feature": "dst_host_diff_srv_rate",
+            "mean_abs_shap": 0.002279915701080092
+        },
+        {
+            "feature": "dst_host_same_src_port_rate",
+            "mean_abs_shap": 0.0020684769461770036
+        }
+    ],
+    "explained_indices": [
+        21177,
+        17299,
+        15382,
+        18756,
+        18133,
+        7037,
+        5399,
+        15774,
+        14352,
+        6498,
+        14186,
+        2190,
+        18751,
+        8731,
+        9806,
+        15084,
+        18966,
+        3619,
+        20239,
+        9845
+    ],
+    "explained_true_classes": [
+        "normal",
+        "normal",
+        "DoS",
+        "DoS",
+        "normal",
+        "normal",
+        "Probe",
+        "normal",
+        "normal",
+        "R2L",
+        "DoS",
+        "normal",
+        "DoS",
+        "Probe",
+        "normal",
+        "DoS",
+        "Probe",
+        "DoS",
+        "DoS",
+        "DoS"
+    ],
+    "files": {
+        "global_importance_csv": "results/explainability\\shap_global_feature_importance.csv",
+        "class_importance_csv": "results/explainability\\shap_feature_importance_by_class.csv",
+        "shap_values": "results/explainability\\shap_values_lstm_attention.npy",
+        "global_plot": "results/visualizations/explainability\\shap_global_feature_importance.png",
+        "class_plot": "results/visualizations/explainability\\shap_feature_importance_by_class.png"
+    },
+    "interpretation_note": "Kernel SHAP estimates feature contributions by perturbing flattened sequence windows. Feature scores are aggregated across timesteps to recover NSL-KDD feature-level explanations."
+}

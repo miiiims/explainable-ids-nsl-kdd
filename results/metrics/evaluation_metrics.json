@@ -1,0 +1,34 @@
+{
+    "accuracy": 0.7652,
+    "precision_macro": 0.7755,
+    "recall_macro": 0.5452,
+    "f1_macro": 0.5705,
+    "precision_weighted": 0.809,
+    "recall_weighted": 0.7652,
+    "f1_weighted": 0.7288,
+    "cohen_kappa": 0.6272,
+    "matthews_corrcoef": 0.6591,
+    "roc_auc_ovr_weighted": 0.9349,
+    "pr_auc_weighted": 0.8482,
+    "prediction_distribution": {
+        "DoS": 6282,
+        "Probe": 1984,
+        "R2L": 280,
+        "U2R": 28,
+        "normal": 13966
+    },
+    "roc_auc_per_class": {
+        "DoS": 0.9709,
+        "Probe": 0.8967,
+        "R2L": 0.8428,
+        "U2R": 0.9634,
+        "normal": 0.9439
+    },
+    "pr_auc_per_class": {
+        "DoS": 0.9538,
+        "Probe": 0.721,
+        "R2L": 0.455,
+        "U2R": 0.2672,
+        "normal": 0.9198
+    }
+}
