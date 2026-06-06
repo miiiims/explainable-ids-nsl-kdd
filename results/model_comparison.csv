@@ -1,6 +1,0 @@
-model,accuracy,f1_macro,f1_weighted,roc_auc_ovr_weighted,pr_auc_weighted
-LSTM + Attention,0.7652,0.5705,0.7288,0.9349,0.8482
-LSTM,0.7536,0.5658,0.7195,0.9272,0.8368
-MLP,0.7575,0.5764,0.7255,0.934,0.8739
-Random Forest,0.7471,0.4866,0.6983,0.9346,0.8848
-HistGradientBoosting,0.7692,0.5644,0.736,0.9517,0.8956
